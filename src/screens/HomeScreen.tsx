@@ -29,7 +29,7 @@ const HomeScreen = () => {
     { name: 'list-alt', text: '' },
     { name: 'heart', text: '14' },
     { name: 'comments', text: '5' },
-    { name: 'certificate', text: '6' },
+    { name: 'bookmark', text: '6' },
     { name: 'share', text: '12' },
     ];
 
@@ -173,11 +173,20 @@ const HomeScreen = () => {
                 ]}
                 onPress={() => handleOptionSelect(option.id)}
                 disabled={selectedOption !== null}
-              >
-                    <Text style={styles.choice}>{option.answer}</Text>
-                    {isCorrectAnswer === true && selectedOption === option.id && (
-                    <Icon name="thumbs-o-up" size={24} color="green" />
-                  )}
+                                            >
+                                                <View style={{
+                                                    flexDirection: "row",
+                                                    justifyContent: "space-between",
+                                                alignItems:"baseline"}}>
+                    <Text style={styles.choice}>{option.answer} 
+                                                    </Text>
+                                                    {selectedOption === option.id && (<Icon
+                                                    name={isCorrectAnswer === true ? "thumbs-o-up" : "thumbs-o-down"}
+                                                size={24}
+                                                color='white'
+                                                />
+              )}</View>
+                    
                 </TouchableOpacity>
                             </View>
                
@@ -229,7 +238,7 @@ const HomeScreen = () => {
 
                             <Text style={styles.playlistText}>
                                 <Icon style={styles.playlistIcon} name="youtube-play" size={14} color="white"/>
-                                <Text style={styles.playlist}>{'    '}{questionData.playlist} {'                                                                 ' }</Text>
+                                <Text style={styles.playlist}>{'    Playlist - '}{questionData.playlist} {'                                                   ' }</Text>
                                  <Icon style={styles.playlistIcon } name="chevron-right" size={14} color="white" /></Text>
                             </View>
           </View>
@@ -295,7 +304,7 @@ const styles = StyleSheet.create({
         marginTop: 84,
       },
       choice: {
-        fontSize: 16,
+        fontSize: 13,
         color: 'white',
     },
     questionBackground: {
@@ -329,7 +338,7 @@ const styles = StyleSheet.create({
           flex:1,
         backgroundColor: 'rgba(0, 0, 0, 0)',
         marginVertical: 200,
-        marginLeft:96,
+        marginLeft:0,
       },
     
       sideGalleryItem: {
