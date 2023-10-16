@@ -113,141 +113,154 @@ const HomeScreen = () => {
           });
       };
     
-    return (
+      return (
         <ImageBackground
-      source={require('../assets/background.jpeg')} // Replace with the correct path to your local image
-      style={styles.backgroundImage}>
-      <View style={styles.container}>
-      <StatusBar barStyle='light-content' />
-      <View style={styles.topBar}>
-      <View style={styles.clockContainer}>
-          <TouchableOpacity style={styles.iconContainer}>
-            <Icon name="clock-o" size={24} color="white" />
-          </TouchableOpacity>
-          <Text style={styles.timer}>{timeSpentInMinutes}m</Text>
-        </View>
-        <View style={styles.titleContainer}>
-          <View style={styles.titleTextContainer}>
-            <Text style={styles.title}>For You</Text>
-          </View>
-          <View style={styles.titleUnderline} />
-        </View>
-        <TouchableOpacity style={styles.iconContainer}>
-          <Icon name="search" size={24} color="white" />
-        </TouchableOpacity>
-          </View>
-    
-          <ScrollView
-        style={styles.scrollContainer}
-        onScroll={(event) => {
-          const offsetY = event.nativeEvent.contentOffset.y;
-          const contentHeight = event.nativeEvent.contentSize.height;
-          const scrollViewHeight = event.nativeEvent.layoutMeasurement.height;
-
-          // Check if the user has reached the end of the scroll view
-          if (offsetY + scrollViewHeight >= contentHeight - 20) {
-            fetchNextQuestion();
-          }
-        }}
-        scrollEventThrottle={400} // Adjust as needed
-      >
-
-              {questionData && (
-                  <View style={styles.contentContainer}>
-
-        <View style={styles.questionContainer}>
-          <View style={styles.questionBackground}>
-            <Text style={styles.question}>{questionData.question}</Text>
-          </View>
-          <View style={styles.choicesContainer}>
-                                    {questionData.options.map((option) => (
-            <View key={option.id}>
-              <TouchableOpacity
-                key={option.id}
-                style={[
-                  styles.choiceBackground,
-                  selectedOption === option.id &&
-                    (isCorrectAnswer === true
-                      ? styles.correctChoice
-                      : styles.wrongChoice)
-                ]}
-                onPress={() => handleOptionSelect(option.id)}
-                disabled={selectedOption !== null}
-                                            >
-                                                <View style={{
-                                                    flexDirection: "row",
-                                                    justifyContent: "space-between",
-                                                alignItems:"baseline"}}>
-                    <Text style={styles.choice}>{option.answer} 
-                                                    </Text>
-                                                    {selectedOption === option.id && (<Icon
-                                                    name={isCorrectAnswer === true ? "thumbs-o-up" : "thumbs-o-down"}
-                                                size={24}
-                                                color='white'
-                                                />
-              )}</View>
-                    
+          source={require('../assets/background.jpeg')}
+          style={styles.backgroundImage}>
+          <View style={styles.container}>
+            <StatusBar barStyle='light-content' />
+            <View style={styles.topBar}>
+              <View style={styles.clockContainer}>
+                <TouchableOpacity style={styles.iconContainer}>
+                  <Icon name="clock-o" size={24} color="white" />
                 </TouchableOpacity>
-                            </View>
-               
-                                    ))}
-                                    
-                                </View>
-                                
-
-
-        </View>
-            <View style={styles.sideGallery}>
-                <TouchableOpacity style={styles.sideGalleryItem}>
-                      <Icon name={sideGalleryIcons[0].name} size={24} color="white" />
-                      <Text style={styles.sideGalleryText}>{sideGalleryIcons[0].text}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.sideGalleryItem}>
-                  <Icon name={sideGalleryIcons[1].name} size={24} color="white" />
-                  <Text style={styles.sideGalleryText}>{sideGalleryIcons[1].text}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={styles.sideGalleryItem}>
-                      <Icon name={sideGalleryIcons[2].name} size={24} color="white" />
-                      <Text style={styles.sideGalleryText}>{sideGalleryIcons[2].text}</Text>
-                </TouchableOpacity><TouchableOpacity style={styles.sideGalleryItem}>
-                      <Icon name={sideGalleryIcons[3].name} size={24} color="white" />
-                      <Text style={styles.sideGalleryText}>{sideGalleryIcons[3].text}</Text>
-                </TouchableOpacity><TouchableOpacity style={styles.sideGalleryItem}>
-                      <Icon name={sideGalleryIcons[4].name} size={24} color="white" />
-                      <Text style={styles.sideGalleryText}>{sideGalleryIcons[4].text}</Text>
-                </TouchableOpacity>
-            
-              
-            </View>
-          </View>
-                    )}
-                    
-                     
-                </ScrollView>
-                {questionData && (
-                        <View>
-                <View style={styles.userInfoContainer}>
-                <Text style={styles.userInfoText}>
-                  {questionData.user.name}
-                </Text>
-                <Text style={styles.description}>
-                  {questionData.description}
-                </Text>
+                <Text style={styles.timer}>{timeSpentInMinutes}m</Text>
               </View>
-                                        <View style={styles.playlistPanel}>
-
-                            <Text style={styles.playlistText}>
-                                <Icon style={styles.playlistIcon} name="youtube-play" size={14} color="white"/>
-                                <Text style={styles.playlist}>{'    Playlist - '}{questionData.playlist} {'                                                   ' }</Text>
-                                 <Icon style={styles.playlistIcon } name="chevron-right" size={14} color="white" /></Text>
+              <View style={styles.titleContainer}>
+                <View style={styles.titleTextContainer}>
+                  <Text style={styles.title}>For You</Text>
+                </View>
+                <View style={styles.titleUnderline} />
+              </View>
+              <TouchableOpacity style={styles.iconContainer}>
+                <Icon name="search" size={24} color="white" />
+              </TouchableOpacity>
+            </View>
+    
+            {/* Row 1 */}
+            <ScrollView
+                      style={styles.scrollContainer}
+                      contentContainerStyle={styles.contentContainer}
+              onScroll={(event) => {
+                const offsetY = event.nativeEvent.contentOffset.y;
+                const contentHeight = event.nativeEvent.contentSize.height;
+                const scrollViewHeight = event.nativeEvent.layoutMeasurement.height;
+    
+                if (offsetY + scrollViewHeight >= contentHeight - 20) {
+                  fetchNextQuestion();
+                }
+              }}
+              scrollEventThrottle={400}>
+              {questionData && (
+                <View style={styles.row1}>
+                  {/* Questions/Answers */}
+                  <View style={styles.column1}>
+                    <View style={styles.questionBackground}>
+                      <Text style={styles.question}>{questionData.question}</Text>
+                    </View>
+                    <View style={styles.choicesContainer}>
+                      {questionData.options.map((option) => (
+                        <View key={option.id}>
+                          <TouchableOpacity
+                            key={option.id}
+                            style={[
+                              styles.choiceBackground,
+                              selectedOption === option.id &&
+                                (isCorrectAnswer === true
+                                  ? styles.correctChoice
+                                  : styles.wrongChoice),
+                            ]}
+                            onPress={() => handleOptionSelect(option.id)}
+                            disabled={selectedOption !== null}>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                alignItems: 'baseline',
+                              }}>
+                              <Text style={styles.choice}>{option.answer}</Text>
+                              {selectedOption === option.id && (
+                                <Icon
+                                  name={
+                                    isCorrectAnswer === true
+                                      ? 'thumbs-o-up'
+                                      : 'thumbs-o-down'
+                                  }
+                                  size={24}
+                                  color='white'
+                                />
+                              )}
                             </View>
+                          </TouchableOpacity>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+    
+                  {/* Side Gallery */}
+                  <View style={styles.column2}>
+                    <View style={styles.sideGallery}>
+                      <TouchableOpacity style={styles.sideGalleryItem}>
+                        <Icon name={sideGalleryIcons[0].name} size={24} color='white' />
+                        <Text style={styles.sideGalleryText}>{sideGalleryIcons[0].text}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.sideGalleryItem}>
+                        <Icon name={sideGalleryIcons[1].name} size={24} color='white' />
+                        <Text style={styles.sideGalleryText}>{sideGalleryIcons[1].text}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.sideGalleryItem}>
+                        <Icon name={sideGalleryIcons[2].name} size={24} color='white' />
+                        <Text style={styles.sideGalleryText}>{sideGalleryIcons[2].text}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.sideGalleryItem}>
+                        <Icon name={sideGalleryIcons[3].name} size={24} color='white' />
+                        <Text style={styles.sideGalleryText}>{sideGalleryIcons[3].text}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.sideGalleryItem}>
+                        <Icon name={sideGalleryIcons[4].name} size={24} color='white' />
+                        <Text style={styles.sideGalleryText}>{sideGalleryIcons[4].text}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              )}
+    
+                      {/* Row 2 (User Info) */}
+                      {questionData && (
+                          <View style={styles.row2}>
+                              {/* User Info */}
+                              <View style={styles.userInfoContainer}>
+                                  <Text style={styles.userInfoText}>{questionData.user.name}</Text>
+                                  <Text style={styles.description}>{questionData.description}</Text>
+                              </View>
+    
+                              {/* Playlist Panel */}
+                              <View style={styles.playlistPanel}>
+                                  <Text style={styles.playlistText}>
+                                      <Icon
+                                          style={styles.playlistIcon}
+                                          name="youtube-play"
+                                          size={14}
+                                          color="white"
+                                      />
+                                      <Text style={styles.playlist}>
+                                          {'    Playlist - '}{questionData.playlist} {'                                                   '}
+                                      </Text>
+                                      <Icon
+                                          style={styles.playlistIcon}
+                                          name="chevron-right"
+                                          size={14}
+                                          color="white"
+                                      />
+                                  </Text>
+                              </View>
+                          </View>
+                      )}
+            </ScrollView>
           </View>
-        )}
-      </View>
-            </ImageBackground>
-
-  );
-};
+        </ImageBackground>
+      );
+    };
 
 const styles = StyleSheet.create({
   container: {
@@ -328,16 +341,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 0, 0, 0.8)', // Transparent gray background
     },
     scrollContainer: {
-        flex: 1, // Take up remaining vertical space
     },
-    contentContainer: {
-        flexDirection: 'row', // Arrange content and side gallery side by side
-      },
     
     sideGallery: {
-          flex:1,
         backgroundColor: 'rgba(0, 0, 0, 0)',
-        marginVertical: 200,
+        marginVertical: 80,
         marginLeft:0,
       },
     
@@ -381,9 +389,6 @@ const styles = StyleSheet.create({
         marginTop: 4,
         marginBottom: 4,
         alignItems: 'center',
-
-    flexDirection: 'row', // Set flexDirection to 'row' to align items horizontally
-
     },
     playlistText: {
         color: 'white',
@@ -395,6 +400,29 @@ const styles = StyleSheet.create({
         padding:16,
         color: 'white',
         justifyContent: 'center'
+    },
+    mainContainer: {
+        flex:1
+    },
+    row1: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 16,
+      },
+    row2: {
+        marginTop: 0,
+      },
+      column1: {
+        flex: 9, // Equal width columns in Row 1
+      },
+      column2: {
+        flex: 1, // Column 1 in Row 2 spans entire width
+    },
+    column3: {
+        flex: 1, // Column 1 in Row 2 spans entire width
+    },
+    contentContainer: {
+        paddingBottom: 16, // Add padding to the bottom of the content
       },
       
 });
