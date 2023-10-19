@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, FlatList, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, ImageBackground } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Use the appropriate icon library
 import { StatusBar } from 'react-native';
-import { useState, useEffect } from 'react'; // Import React and React hooks
+import { useState, useEffect, useCallback } from 'react'; // Import React and React hooks
 
 
 const HomeScreen = () => {
@@ -38,6 +38,9 @@ const HomeScreen = () => {
     const [questionData, setQuestionData] = useState<QuestionData | null>(null);
     const [selectedOption, setSelectedOption] = useState<string | null>(null); 
     const [isCorrectAnswer, setIsCorrectAnswer] = useState<boolean | null>(null); 
+    const [cachedQuestions, setCachedQuestions] = useState<QuestionData[]>([]); // Store cached questions
+    const [currentIndex, setCurrentIndex] = useState(0); // Initialize scroll position state
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
 
@@ -56,9 +59,15 @@ const HomeScreen = () => {
     useEffect(() => {
         fetch('https://cross-platform.rp.devfactory.com/for_you')
       .then((response) => response.json())
-      .then((data) => {
-          setQuestionData(data);
-          console.log("current id is: ", data.id)
+          .then((data) => {
+            console.log("useEffect: ", data.id);
+            console.log("useEffect: ", data.question);
+            setCurrentIndex(0);
+
+        setQuestionData(data);
+        setCachedQuestions((prevCachedQuestions) => [...prevCachedQuestions, data]); // Add to cache
+
+
       })
       .catch((error) => {
         console.error('Error fetching question:', error);
@@ -96,22 +105,68 @@ const HomeScreen = () => {
         setSelectedOption(option);
     };
 
-    const fetchNextQuestion = () => {
-        setIsCorrectAnswer(null);
-        setSelectedOption(null);
-        
-        fetch('https://cross-platform.rp.devfactory.com/for_you')
-          .then((response) => response.json())
-          .then((data) => {
-              setQuestionData(data);
-              console.log("current id is: ", data.id);
-              console.log("current question is: ", data.question);
+      // Define a function to fetch questions from the API
+  const fetchQuestionFromAPI = useCallback(async () => {
+    try {
+      const response = await fetch('https://cross-platform.rp.devfactory.com/for_you');
+      const data = await response.json();
+      setQuestionData(data);
+      setCachedQuestions((prevCachedQuestions) => [...prevCachedQuestions, data]); // Add to cache
+      console.log('current id is: ', data.id);
+      console.log('question is: ', data.question);
 
-          })
-          .catch((error) => {
-            console.error('Error fetching next question:', error);
-          });
-      };
+    } catch (error) {
+      console.error('Error fetching question:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+    
+    // Function to fetch the next question from the cache based on the current index
+  const fetchNextQuestionFromCache = () => {
+    setIsCorrectAnswer(null);
+    setSelectedOption(null);
+    const nextIndex = currentIndex + 1;
+    setCurrentIndex(nextIndex);
+
+                if (nextIndex < cachedQuestions.length) {
+                    setQuestionData(cachedQuestions[nextIndex]);
+                    console.log('fetchNextQuestionFromCache: IF');
+
+                    console.log('fetchNextQuestionFromCache: currentIndex = ', currentIndex);
+
+                  console.log('fetchNextQuestionFromCache: questionData =', questionData);
+
+                } else {
+                  setIsLoading(true);
+
+                    // If no more questions in cache, fetch from the API
+                    console.log('fetchNextQuestionFromCache: ELSE');
+
+                    console.log('fetchNextQuestionFromCache: ', currentIndex);
+
+                  fetchQuestionFromAPI();
+
+                }
+            
+
+      
+  };
+    
+    // Function to fetch the previous question from the cache based on the current index
+    const fetchPreviousQuestionFromCache = () => {
+      setIsCorrectAnswer(null);
+      setSelectedOption(null);
+      const previousIndex = currentIndex - 1;
+      if (previousIndex >= 0) {
+        console.log('fetchPreviousQuestionFromCache: ', previousIndex);
+
+        setCurrentIndex(previousIndex);
+        setQuestionData(cachedQuestions[previousIndex]);
+      }
+      
+  };
+
     
       return (
         <ImageBackground
@@ -145,12 +200,26 @@ const HomeScreen = () => {
                 const offsetY = event.nativeEvent.contentOffset.y;
                 const contentHeight = event.nativeEvent.contentSize.height;
                 const scrollViewHeight = event.nativeEvent.layoutMeasurement.height;
-    
-                if (offsetY + scrollViewHeight >= contentHeight - 20) {
-                  fetchNextQuestion();
-                }
+                console.log('offsetY = ', offsetY);
+                console.log('contentHeight =', contentHeight);
+                console.log('scrollViewHeight =',  scrollViewHeight);
+
+                  if (offsetY < -10) {
+
+                    // User is scrolling up at the top, fetch the previous question
+                    console.log('fetchPreviousQuestionFromCache: called');
+
+                    fetchPreviousQuestionFromCache();
+                  } else if (offsetY > 10) {
+
+                    // User is scrolling down at the bottom, fetch the next question
+                    console.log('fetchNextQuestionFromCache: called');
+
+                    fetchNextQuestionFromCache();
+                  }
+                                
               }}
-              scrollEventThrottle={400}>
+              scrollEventThrottle={0}>
               {questionData && (
                 <View style={styles.row1}>
                   {/* Questions/Answers */}
@@ -258,7 +327,13 @@ const HomeScreen = () => {
                       )}
             </ScrollView>
           </View>
+          {isLoading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="white" />
+          </View>
+        )}
         </ImageBackground>
+        
       );
     };
 
@@ -407,23 +482,37 @@ const styles = StyleSheet.create({
     row1: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 16,
+        marginTop: 160,
       },
     row2: {
         marginTop: 0,
       },
       column1: {
-        flex: 9, // Equal width columns in Row 1
+        flex: 8, // Equal width columns in Row 1
       },
       column2: {
-        flex: 1, // Column 1 in Row 2 spans entire width
+        flex: 2, // Column 1 in Row 2 spans entire width
     },
     column3: {
         flex: 1, // Column 1 in Row 2 spans entire width
     },
     contentContainer: {
         paddingBottom: 16, // Add padding to the bottom of the content
-      },
+  },
+    flatList: {
+    flex: 1, // Ensure FlatList takes the full screen height
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
       
 });
 
